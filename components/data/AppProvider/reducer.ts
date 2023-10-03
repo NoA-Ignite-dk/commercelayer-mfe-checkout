@@ -19,6 +19,7 @@ export enum ActionType {
   SET_PAYMENT = "SET_PAYMENT",
   CHANGE_COUPON_OR_GIFTCARD = "CHANGE_COUPON_OR_GIFTCARD",
   PLACE_ORDER = "PLACE_ORDER",
+  UPDATE_ORDER_METADATA = "UPDATE_ORDER_METADATA",
 }
 
 export type Action =
@@ -80,6 +81,12 @@ export type Action =
     }
   | {
       type: ActionType.PLACE_ORDER
+      payload: {
+        order: Order
+      }
+    }
+  | {
+      type: ActionType.UPDATE_ORDER_METADATA
       payload: {
         order: Order
       }
@@ -174,6 +181,12 @@ export function reducer(state: AppStateData, action: Action): AppStateData {
         ...state,
         ...checkPaymentMethod(action.payload.order),
         isLoading: false,
+      }
+    }
+    case ActionType.UPDATE_ORDER_METADATA: {
+      return {
+        ...state,
+        order: action.payload.order,
       }
     }
     default:
