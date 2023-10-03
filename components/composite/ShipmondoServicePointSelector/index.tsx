@@ -8,9 +8,29 @@ import { fetchServicePoints } from "components/data/ShipmondoServicePoint"
 import { ButtonCss } from "components/ui/Button"
 import { InputCss } from "components/ui/form/Input"
 
+export type ShipmondoServicePoint = {
+  number: string
+  id: string
+  company_name: string
+  name: string
+  address: string
+  address2: string
+  zipcode: string
+  city: string
+  country: string
+  distance: number
+  longitude: number
+  latitude: number
+  agent: string
+  carrier_code: string
+  opening_hours: [string]
+  in_delivery: boolean
+  out_delivery: boolean
+}
+
 interface ShipmondoServicePointSelectorProps {
   onCancel: () => void
-  onSelect: (servicePoint: string) => void
+  onSelect: (servicePoint: ShipmondoServicePoint) => void
 }
 
 export const ShipmondoServicePointSelector: React.FC<
@@ -20,7 +40,9 @@ export const ShipmondoServicePointSelector: React.FC<
 
   const [hasError, setHasError] = useState(false)
   const [postalCode, setPostalCode] = useState("")
-  const [servicePoints, setServicePoints] = useState<any>([])
+  const [servicePoints, setServicePoints] = useState<ShipmondoServicePoint[]>(
+    []
+  )
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -60,10 +82,10 @@ export const ShipmondoServicePointSelector: React.FC<
         </ServicePointFormWrapper>
         {servicePoints.length > 0 && (
           <ServicePointList>
-            {servicePoints.map((servicePoint: any) => (
+            {servicePoints.map((servicePoint: ShipmondoServicePoint) => (
               <li key={servicePoint.id}>
-                <button onClick={() => onSelect(servicePoint.id)}>
-                  {servicePoint.name}
+                <button onClick={() => onSelect(servicePoint)}>
+                  {servicePoint.name} (<SelectButton>select</SelectButton>)
                 </button>
               </li>
             ))}
@@ -106,4 +128,7 @@ const ServicePointList = styled.ul`
 
 const CancelButton = styled.button`
   ${ButtonCss}
+`
+const SelectButton = styled.span`
+  text-decoration: underline;
 `

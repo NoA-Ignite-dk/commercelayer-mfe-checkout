@@ -5,8 +5,9 @@ import {
 } from "@commercelayer/react-components"
 import { Order, ShippingMethod as ShippingMethodType } from "@commercelayer/sdk"
 import { Metadata } from "@commercelayer/sdk/lib/cjs/resource"
-import { useRef, useState } from "react"
+import { useContext, useRef, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
+import styled from "styled-components"
 
 import {
   ShippingLineItemTitle,
@@ -17,7 +18,11 @@ import {
 } from "../styled"
 
 import { Modal } from "components/composite/Modal"
-import { ShipmondoServicePointSelector } from "components/composite/ShipmondoServicePointSelector"
+import {
+  ShipmondoServicePoint,
+  ShipmondoServicePointSelector,
+} from "components/composite/ShipmondoServicePointSelector"
+import { AppContext } from "components/data/AppProvider"
 
 interface ShippingMethodProps {
   handleChange: (params: {
@@ -31,8 +36,11 @@ export const ShippingMethod: React.FC<ShippingMethodProps> = ({
   handleChange,
 }) => {
   const { t } = useTranslation()
+  const appCtx = useContext(AppContext)
   const shippingMethodMeta = useRef<Metadata>()
   const [showServicePointModal, setShowServicePointModal] = useState(false)
+  const [selectedServicePoint, setSelectedServicePoint] =
+    useState<ShipmondoServicePoint>()
 
   return (
     <>
@@ -42,9 +50,15 @@ export const ShippingMethod: React.FC<ShippingMethodProps> = ({
       >
         <ShipmondoServicePointSelector
           onCancel={() => setShowServicePointModal(false)}
-          onSelect={(servicePointId) => {
+          onSelect={(servicePoint) => {
             setShowServicePointModal(false)
-            console.log(servicePointId)
+            setSelectedServicePoint(servicePoint)
+            appCtx?.updateOrderMetadata({
+              metadata: {
+                shipmondo_service_point_id: servicePoint.id,
+                shipmondo_service_point_name: servicePoint.name,
+              },
+            })
           }}
         />
       </Modal>
@@ -94,6 +108,16 @@ export const ShippingMethod: React.FC<ShippingMethodProps> = ({
                       </Trans>
                     </ShippingSummaryItemDescription>
                   )}
+                {shippingMethodMeta.current?.api_provider === "shipmondo" &&
+                  shippingMethodMeta.current?.type === "service_point" &&
+                  selectedServicePoint && (
+                    <ShippingSummaryItemDescription>
+                      <>
+                        {selectedServicePoint?.name} (
+                        <StyledEditButton>edit</StyledEditButton>)
+                      </>
+                    </ShippingSummaryItemDescription>
+                  )}
                 <ShippingSummaryValue>
                   <ShippingMethodPrice
                     data-testid="shipping-method-price"
@@ -109,3 +133,7 @@ export const ShippingMethod: React.FC<ShippingMethodProps> = ({
     </>
   )
 }
+
+const StyledEditButton = styled.span`
+  text-decoration: underline;
+`

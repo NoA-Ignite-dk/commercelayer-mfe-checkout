@@ -40,6 +40,10 @@ export interface AppProviderData extends FetchOrderByIdResponse {
     order?: Order
   }) => Promise<void>
   autoSelectShippingMethod: (order?: Order) => Promise<void>
+  updateOrderMetadata: (params: {
+    order?: Order
+    metadata: Record<string, unknown>
+  }) => Promise<void>
 }
 
 export interface AppStateData extends FetchOrderByIdResponse {
@@ -295,6 +299,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     })
   }
 
+  const updateOrderMetadata = async (params: {
+    order?: Order
+    metadata: Record<string, unknown>
+  }) => {
+    const currentOrder = params.order ?? (await getOrderFromRef())
+
+    dispatch({
+      type: ActionType.UPDATE_ORDER_METADATA,
+      payload: {
+        order: {
+          ...currentOrder,
+          metadata: params.metadata,
+        },
+      },
+    })
+  }
+
   const getOrderFromRef = async () => {
     return orderRef.current || (await fetchOrder(cl, orderId))
   }
@@ -325,6 +346,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         placeOrder,
         setCustomerEmail,
         autoSelectShippingMethod,
+        updateOrderMetadata,
       }}
     >
       {children}

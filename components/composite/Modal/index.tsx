@@ -18,6 +18,8 @@ const StyledModal = styled.div<{ show: boolean }>`
 const ModalInner = styled.div`
   background-color: #fff;
   padding: 2.5rem;
+  max-height: 90vh;
+  overflow-y: scroll;
 `
 
 interface ModalProps {
